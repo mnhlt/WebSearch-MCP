@@ -1,0 +1,80 @@
+# Source files (we only want to publish the dist folder with compiled code)
+src/
+
+# TypeScript config files
+tsconfig.json
+tsconfig.*.json
+
+# Test files
+test/
+*.test.ts
+*.spec.ts
+__tests__/
+__mocks__/
+
+# Git files
+.git/
+.github/
+.gitignore
+.gitattributes
+
+# CI/CD
+.travis.yml
+.circleci/
+.gitlab-ci.yml
+.github/
+.azure-pipelines.yml
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Docker files
+docker-compose.yml
+Dockerfile
+.docker-volumes/
+
+# Development tools and configs
+.prettierrc
+.eslintrc
+.eslintignore
+.editorconfig
+jest.config.js
+rollup.config.js
+webpack.config.js
+babel.config.js
+.babelrc
+.nvmrc
+
+# Documentation that's not necessary for npm
+CONTRIBUTING.md
+CHANGELOG.md
+swagger.json
+docs/
+
+# Examples not needed for npm
+examples/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Misc
+.DS_Store
+*.env
+coverage/
+tmp/
+.nyc_output/
+
+# Don't ignore these files
+!dist/
+!LICENSE
+!README.md
+!package.json 

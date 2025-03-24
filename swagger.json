@@ -1,0 +1,380 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "WebSearch API - Crawler Service",
+    "version": "1.0.0",
+    "description": "API documentation for the WebSearch API crawler service",
+    "license": {
+      "name": "ISC",
+      "url": "https://opensource.org/licenses/ISC"
+    },
+    "contact": {
+      "name": "WebSearch API Support",
+      "url": "https://github.com/yourusername/WebSearchAPI",
+      "email": "support@example.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Development server"
+    },
+    {
+      "url": "https://crawler.example.com",
+      "description": "Production server"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Error message"
+          }
+        }
+      },
+      "CrawlRequest": {
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "properties": {
+          "query": {
+            "type": "string",
+            "example": "artificial intelligence"
+          },
+          "numResults": {
+            "type": "integer",
+            "example": 5,
+            "description": "Maximum number of results to return"
+          },
+          "language": {
+            "type": "string",
+            "example": "en",
+            "description": "Language code for search results"
+          },
+          "region": {
+            "type": "string",
+            "example": "us",
+            "description": "Region code for search results"
+          },
+          "filters": {
+            "type": "object",
+            "properties": {
+              "excludeDomains": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "example": [
+                  "youtube.com",
+                  "facebook.com"
+                ],
+                "description": "Domains to exclude from results"
+              },
+              "includeDomains": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "example": [
+                  "example.com",
+                  "blog.example.com"
+                ],
+                "description": "Only include these domains in results"
+              },
+              "excludeTerms": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "example": [
+                  "video",
+                  "course"
+                ],
+                "description": "Terms to exclude from results"
+              },
+              "resultType": {
+                "type": "string",
+                "enum": [
+                  "all",
+                  "news",
+                  "blogs"
+                ],
+                "example": "all",
+                "description": "Type of results to return"
+              }
+            }
+          }
+        }
+      },
+      "CrawlResponse": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "example": "artificial intelligence"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string",
+                  "example": "https://example.com/article"
+                },
+                "html": {
+                  "type": "string",
+                  "example": "<div>Article content...</div>"
+                },
+                "text": {
+                  "type": "string",
+                  "example": "Artificial intelligence (AI) is intelligence—perceiving..."
+                },
+                "title": {
+                  "type": "string",
+                  "example": "Understanding AI"
+                },
+                "excerpt": {
+                  "type": "string",
+                  "example": "A brief overview of artificial intelligence..."
+                },
+                "siteName": {
+                  "type": "string",
+                  "example": "Example.com"
+                },
+                "byline": {
+                  "type": "string",
+                  "example": "John Doe"
+                },
+                "error": {
+                  "type": "string",
+                  "example": null
+                }
+              }
+            }
+          },
+          "error": {
+            "type": "string",
+            "example": null
+          }
+        }
+      },
+      "HealthCheckResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "degraded",
+              "down"
+            ],
+            "example": "ok"
+          },
+          "details": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "degraded",
+                  "down"
+                ],
+                "example": "ok"
+              },
+              "flaresolverr": {
+                "type": "boolean",
+                "example": true
+              },
+              "google": {
+                "type": "boolean",
+                "example": true
+              },
+              "message": {
+                "type": "string",
+                "example": null
+              }
+            }
+          }
+        }
+      },
+      "QuotaResponse": {
+        "type": "object",
+        "properties": {
+          "dailyQuota": {
+            "type": "integer",
+            "example": 1000
+          },
+          "usedToday": {
+            "type": "integer",
+            "example": 150
+          },
+          "remaining": {
+            "type": "integer",
+            "example": 850
+          },
+          "resetTime": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2023-01-02T00:00:00Z"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Crawling",
+      "description": "API endpoints for web crawling operations"
+    },
+    {
+      "name": "Health",
+      "description": "Health check and monitoring endpoints"
+    }
+  ],
+  "paths": {
+    "/crawl": {
+      "post": {
+        "summary": "Crawl web pages based on a search query",
+        "description": "Searches the web for results matching the given query and returns the content of those pages",
+        "tags": [
+          "Crawling"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrawlRequest",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "The search query to crawl for",
+                    "required": true
+                  },
+                  "numResults": {
+                    "type": "integer",
+                    "description": "Number of results to return",
+                    "default": 5
+                  },
+                  "debug": {
+                    "type": "boolean",
+                    "description": "When true, include HTML content in the response",
+                    "default": true
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "Language code for search results"
+                  },
+                  "region": {
+                    "type": "string",
+                    "description": "Region code for search results"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully crawled web pages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CrawlResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing query parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Check crawler service health",
+        "description": "Returns the health status of the crawler service and its dependencies",
+        "tags": [
+          "Health"
+        ],
+        "responses": {
+          "200": {
+            "description": "Health status (OK or degraded)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthCheckResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthCheckResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/quota": {
+      "get": {
+        "summary": "Get crawling quota status",
+        "description": "Returns information about the current usage and limits of the crawling quota",
+        "tags": [
+          "Crawling"
+        ],
+        "responses": {
+          "200": {
+            "description": "Quota information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuotaResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
