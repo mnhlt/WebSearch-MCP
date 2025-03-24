@@ -19,10 +19,18 @@ npx websearch-mcp
 The WebSearch MCP server can be configured using environment variables:
 
 - `API_URL`: The URL of the WebSearch Crawler API (default: `http://localhost:3001`)
+- `MAX_SEARCH_RESULT`: Maximum number of search results to return when not specified in the request (default: `5`)
 
-Example:
+Examples:
 ```bash
+# Configure API URL
 API_URL=https://crawler.example.com npx websearch-mcp
+
+# Configure maximum search results
+MAX_SEARCH_RESULT=10 npx websearch-mcp
+
+# Configure both
+API_URL=https://crawler.example.com MAX_SEARCH_RESULT=10 npx websearch-mcp
 ```
 
 ## Setting Up the Crawler Service
@@ -143,7 +151,8 @@ Here's a quick reference for MCP configuration across different clients:
                 "websearch-mcp"
             ],
             "environment": {
-                "API_URL": "http://localhost:3001"
+                "API_URL": "http://localhost:3001",
+                "MAX_SEARCH_RESULT": "5" // reduce to save your tokens, increase for wider information gain
             }
         }
     }

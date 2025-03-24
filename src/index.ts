@@ -7,6 +7,7 @@ import axios from "axios";
 
 // Configuration
 const API_URL = process.env.API_URL || "http://localhost:3001";
+const MAX_SEARCH_RESULT = parseInt(process.env.MAX_SEARCH_RESULT || "5", 10);
 
 // Interface definitions based on swagger.json
 interface CrawlRequest {
@@ -52,7 +53,7 @@ async function main() {
     "web_search",
     {
       query: z.string().describe("The search query to look up"),
-      numResults: z.number().optional().describe("Number of results to return (default: 5)"),
+      numResults: z.number().optional().describe(`Number of results to return (default: ${MAX_SEARCH_RESULT})`),
       language: z.string().optional().describe("Language code for search results (e.g., 'en')"),
       region: z.string().optional().describe("Region code for search results (e.g., 'us')"),
       excludeDomains: z.array(z.string()).optional().describe("Domains to exclude from results"),
@@ -67,7 +68,7 @@ async function main() {
         // Prepare request payload for crawler API
         const requestPayload: CrawlRequest = {
           query: params.query,
-          numResults: params.numResults,
+          numResults: params.numResults ?? MAX_SEARCH_RESULT,
           language: params.language,
           region: params.region,
           filters: {

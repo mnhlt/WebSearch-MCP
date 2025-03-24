@@ -22,7 +22,8 @@ async function main() {
     stdio: ['pipe', 'pipe', process.stderr],
     env: {
       ...process.env,
-      API_URL: process.env.API_URL || 'http://localhost:3001'
+      API_URL: process.env.API_URL || 'http://localhost:3001',
+      MAX_SEARCH_RESULT: process.env.MAX_SEARCH_RESULT || '5'
     }
   });
 
@@ -89,7 +90,7 @@ async function main() {
         name: 'web_search',
         arguments: {
           query: input,
-          numResults: 3
+          numResults: parseInt(process.env.MAX_SEARCH_RESULT || '3', 10)
         }
       }
     };

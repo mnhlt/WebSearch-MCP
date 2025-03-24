@@ -1,6 +1,6 @@
 {
   "name": "websearch-mcp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Model Context Protocol (MCP) server implementation that provides real-time web search capabilities through a simple API",
   "main": "dist/index.js",
   "bin": {
