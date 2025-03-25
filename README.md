@@ -2,6 +2,42 @@
 
 A Model Context Protocol (MCP) server implementation that provides a web search capability over stdio transport. This server integrates with a WebSearch Crawler API to retrieve search results.
 
+## Table of Contents
+
+- [About](#about)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Setup & Integration](#setup--integration)
+  - [Setting Up the Crawler Service](#setting-up-the-crawler-service)
+    - [Prerequisites](#prerequisites)
+    - [Starting the Crawler Service](#starting-the-crawler-service)
+    - [Testing the Crawler API](#testing-the-crawler-api)
+    - [Custom Configuration](#custom-configuration)
+  - [Integrating with MCP Clients](#integrating-with-mcp-clients)
+    - [Quick Reference: MCP Configuration](#quick-reference-mcp-configuration)
+    - [Claude Desktop](#claude-desktop)
+    - [Cursor IDE](#cursor-ide)
+    - [Cline](#cline-command-line-interface-for-claude)
+- [Usage](#usage)
+  - [Parameters](#parameters)
+  - [Example Search Response](#example-search-response)
+  - [Testing Locally](#testing-locally)
+  - [As a Library](#as-a-library)
+- [Troubleshooting](#troubleshooting)
+  - [Crawler Service Issues](#crawler-service-issues)
+  - [MCP Server Issues](#mcp-server-issues)
+- [Development](#development)
+  - [Project Structure](#project-structure)
+  - [Publishing to npm](#publishing-to-npm)
+- [Contributing](#contributing)
+- [License](#license)
+
+## About
+
+WebSearch-MCP is a Model Context Protocol server that provides web search capabilities to AI assistants that support MCP. It allows AI models like Claude to search the web in real-time, retrieving up-to-date information about any topic.
+
+The server integrates with a Crawler API service that handles the actual web searches, and communicates with AI assistants using the standardized Model Context Protocol.
+
 ## Installation
 
 ```bash
@@ -33,7 +69,11 @@ MAX_SEARCH_RESULT=10 npx websearch-mcp
 API_URL=https://crawler.example.com MAX_SEARCH_RESULT=10 npx websearch-mcp
 ```
 
-## Setting Up the Crawler Service
+## Setup & Integration
+
+Setting up WebSearch-MCP involves two main parts: configuring the crawler service that performs the actual web searches, and integrating the MCP server with your AI client applications.
+
+### Setting Up the Crawler Service
 
 The WebSearch MCP server requires a crawler service to perform the actual web searches. You can easily set up the crawler service using Docker Compose.
 
@@ -110,7 +150,7 @@ Expected response:
 
 The crawler API will be available at `http://localhost:3001`.
 
-### Testing the Crawler API Directly
+### Testing the Crawler API
 
 You can test the crawler API directly using curl:
 
@@ -159,10 +199,31 @@ Here's a quick reference for MCP configuration across different clients:
 }
 ```
 
+Workaround for Windows, due to [Issue](https://github.com/smithery-ai/mcp-obsidian/issues/19)
+```
+{
+	"mcpServers": {
+	  "websearch": {
+            "command": "cmd",
+            "args": [
+				"/c",
+				"npx",
+                "websearch-mcp"
+            ],
+            "environment": {
+                "API_URL": "http://localhost:3001",
+                "MAX_SEARCH_RESULT": "1"
+            }
+        }
+	}
+  }
+```
 
 ## Usage
 
 This package implements an MCP server using stdio transport that exposes a `web_search` tool with the following parameters:
+
+### Parameters
 
 - `query` (required): The search query to look up
 - `numResults` (optional): Number of results to return (default: 5)
