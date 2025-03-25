@@ -116,6 +116,40 @@ services:
 volumes:
   crawler_storage:
 ```
+workaround for Mac Apple Silicon
+```
+version: '3.8'
+
+services:
+  crawler:
+    image: laituanmanh/websearch-crawler:latest
+    container_name: websearch-api
+    platform: "linux/amd64"
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - LOG_LEVEL=info
+      - FLARESOLVERR_URL=http://flaresolverr:8191/v1
+    depends_on:
+      - flaresolverr
+    volumes:
+      - crawler_storage:/app/storage
+
+  flaresolverr:
+    image: 21hsmw/flaresolverr:nodriver
+    platform: "linux/arm64"
+    container_name: flaresolverr
+    restart: unless-stopped
+    environment:
+      - LOG_LEVEL=info
+      - TZ=UTC
+
+volumes:
+  crawler_storage:
+```
 
 2. Start the services:
 
