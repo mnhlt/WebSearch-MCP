@@ -1,5 +1,7 @@
 # WebSearch-MCP
 
+[![smithery badge](https://smithery.ai/badge/@mnhlt/WebSearch-MCP)](https://smithery.ai/server/@mnhlt/WebSearch-MCP)
+
 A Model Context Protocol (MCP) server implementation that provides a web search capability over stdio transport. This server integrates with a WebSearch Crawler API to retrieve search results.
 
 ## Table of Contents
@@ -40,6 +42,15 @@ The server integrates with a Crawler API service that handles the actual web sea
 
 ## Installation
 
+### Installing via Smithery
+
+To install WebSearch for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@mnhlt/WebSearch-MCP):
+
+```bash
+npx -y @smithery/cli install @mnhlt/WebSearch-MCP --client claude
+```
+
+### Manual Installation
 ```bash
 npm install -g websearch-mcp
 ```
@@ -398,4 +409,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-ISC 
+ISC
