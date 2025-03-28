@@ -1,0 +1,31 @@
+# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
+
+startCommand:
+  type: stdio
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    required: []
+    properties:
+      apiUrl:
+        type: string
+        default: http://localhost:3001
+        description: The URL of the WebSearch Crawler API.
+      maxSearchResult:
+        type: number
+        default: 5
+        description: Maximum number of search results to return.
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => ({
+      command: 'node',
+      args: ['dist/index.js'],
+      env: {
+        API_URL: config.apiUrl,
+        MAX_SEARCH_RESULT: String(config.maxSearchResult)
+      }
+    })
+  exampleConfig:
+    apiUrl: http://localhost:3001
+    maxSearchResult: 5
