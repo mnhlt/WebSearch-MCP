@@ -45,26 +45,60 @@ async function main() {
   // Create an MCP server
   const server = new McpServer({
     name: "WebSearch-MCP",
-    version: "1.0.0"
+    version: "1.0.0",
   });
 
   // Add a web_search tool
   server.tool(
     "web_search",
+    "Search the web for information.\n"
+    + "Use this tool when you need to search the web for information.\n"
+    + "You can use this tool to search for news, blogs, or all types of information.\n"
+    + "You can also use this tool to search for information about a specific company or product.\n"
+    + "You can also use this tool to search for information about a specific person.\n"
+    + "You can also use this tool to search for information about a specific product.\n"
+    + "You can also use this tool to search for information about a specific company.\n"
+    + "You can also use this tool to search for information about a specific event.\n"
+    + "You can also use this tool to search for information about a specific location.\n"
+    + "You can also use this tool to search for information about a specific thing.\n"
+    + "If you request search with 1 result number and failed, retry with bigger results number.",
     {
       query: z.string().describe("The search query to look up"),
-      numResults: z.number().optional().describe(`Number of results to return (default: ${MAX_SEARCH_RESULT})`),
-      language: z.string().optional().describe("Language code for search results (e.g., 'en')"),
-      region: z.string().optional().describe("Region code for search results (e.g., 'us')"),
-      excludeDomains: z.array(z.string()).optional().describe("Domains to exclude from results"),
-      includeDomains: z.array(z.string()).optional().describe("Only include these domains in results"),
-      excludeTerms: z.array(z.string()).optional().describe("Terms to exclude from results"),
-      resultType: z.enum(["all", "news", "blogs"]).optional().describe("Type of results to return")
+      numResults: z
+        .number()
+        .optional()
+        .describe(
+          `Number of results to return (default: ${MAX_SEARCH_RESULT})`
+        ),
+      language: z
+        .string()
+        .optional()
+        .describe("Language code for search results (e.g., 'en')"),
+      region: z
+        .string()
+        .optional()
+        .describe("Region code for search results (e.g., 'us')"),
+      excludeDomains: z
+        .array(z.string())
+        .optional()
+        .describe("Domains to exclude from results"),
+      includeDomains: z
+        .array(z.string())
+        .optional()
+        .describe("Only include these domains in results"),
+      excludeTerms: z
+        .array(z.string())
+        .optional()
+        .describe("Terms to exclude from results"),
+      resultType: z
+        .enum(["all", "news", "blogs"])
+        .optional()
+        .describe("Type of results to return"),
     },
     async (params) => {
       try {
         console.error(`Performing web search for: ${params.query}`);
-        
+
         // Prepare request payload for crawler API
         const requestPayload: CrawlRequest = {
           query: params.query,
@@ -75,62 +109,78 @@ async function main() {
             excludeDomains: params.excludeDomains,
             includeDomains: params.includeDomains,
             excludeTerms: params.excludeTerms,
-            resultType: params.resultType as "all" | "news" | "blogs"
-          }
+            resultType: params.resultType as "all" | "news" | "blogs",
+          },
         };
-        
+
         // Call the crawler API
         console.error(`Sending request to ${API_URL}/crawl`);
-        const response = await axios.post<CrawlResponse>(`${API_URL}/crawl`, requestPayload);
-        
+        const response = await axios.post<CrawlResponse>(
+          `${API_URL}/crawl`,
+          requestPayload
+        );
+
         // Format the response for the MCP client
-        const results = response.data.results.map(result => ({
+        const results = response.data.results.map((result) => ({
           title: result.title,
           snippet: result.excerpt,
           text: result.text,
           url: result.url,
           siteName: result.siteName || "",
-          byline: result.byline || ""
+          byline: result.byline || "",
         }));
-        
+
         return {
-          content: [{ 
-            type: "text", 
-            text: JSON.stringify({
-              query: response.data.query,
-              results: results
-            }, null, 2)
-          }]
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(
+                {
+                  query: response.data.query,
+                  results: results,
+                },
+                null,
+                2
+              ),
+            },
+          ],
         };
       } catch (error) {
-        console.error('Error performing web search:', error);
-        
+        console.error("Error performing web search:", error);
+
         if (axios.isAxiosError(error)) {
           const errorMessage = error.response?.data?.error || error.message;
           return {
             content: [{ type: "text", text: `Error: ${errorMessage}` }],
-            isError: true
+            isError: true,
           };
         }
-        
+
         return {
-          content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` }],
-          isError: true
+          content: [
+            {
+              type: "text",
+              text: `Error: ${
+                error instanceof Error ? error.message : "Unknown error"
+              }`,
+            },
+          ],
+          isError: true,
         };
       }
     }
   );
 
   // Start receiving messages on stdin and sending messages on stdout
-  console.error('Starting WebSearch MCP server...');
+  console.error("Starting WebSearch MCP server...");
   console.error(`Using API_URL: ${API_URL}`);
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('WebSearch MCP server started');
+  console.error("WebSearch MCP server started");
 }
 
 // Start the server
 main().catch((error) => {
-  console.error('Failed to start WebSearch MCP server:', error);
+  console.error("Failed to start WebSearch MCP server:", error);
   process.exit(1);
-}); 
+});
