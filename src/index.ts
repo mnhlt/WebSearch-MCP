@@ -61,14 +61,20 @@ async function main() {
     + "You can also use this tool to search for information about a specific event.\n"
     + "You can also use this tool to search for information about a specific location.\n"
     + "You can also use this tool to search for information about a specific thing.\n"
+    + "You can provide multiple queries (max 10) to search for different topics simultaneously.\n"
+    + "Results from multiple queries will be aggregated and deduplicated by URL.\n"
     + "If you request search with 1 result number and failed, retry with bigger results number.",
     {
-      query: z.string().describe("The search query to look up"),
+      queries: z
+        .array(z.string())
+        .min(1)
+        .max(10)
+        .describe("Array of search queries to look up (max 10 queries)"),
       numResults: z
         .number()
         .optional()
         .describe(
-          `Number of results to return (default: ${MAX_SEARCH_RESULT})`
+          `Number of results to return per query (default: ${MAX_SEARCH_RESULT})`
         ),
       language: z
         .string()
@@ -97,38 +103,65 @@ async function main() {
     },
     async (params) => {
       try {
-        console.error(`Performing web search for: ${params.query}`);
+        console.error(`Performing web search for ${params.queries.length} queries: ${params.queries.join(", ")}`);
 
-        // Prepare request payload for crawler API
-        const requestPayload: CrawlRequest = {
-          query: params.query,
-          numResults: params.numResults ?? MAX_SEARCH_RESULT,
-          language: params.language,
-          region: params.region,
-          filters: {
-            excludeDomains: params.excludeDomains,
-            includeDomains: params.includeDomains,
-            excludeTerms: params.excludeTerms,
-            resultType: params.resultType as "all" | "news" | "blogs",
-          },
-        };
+        // Execute all searches in parallel
+        const searchPromises = params.queries.map(async (query) => {
+          const requestPayload: CrawlRequest = {
+            query: query,
+            numResults: params.numResults ?? MAX_SEARCH_RESULT,
+            language: params.language,
+            region: params.region,
+            filters: {
+              excludeDomains: params.excludeDomains,
+              includeDomains: params.includeDomains,
+              excludeTerms: params.excludeTerms,
+              resultType: params.resultType as "all" | "news" | "blogs",
+            },
+          };
 
-        // Call the crawler API
-        console.error(`Sending request to ${API_URL}/crawl`);
-        const response = await axios.post<CrawlResponse>(
-          `${API_URL}/crawl`,
-          requestPayload
-        );
+          console.error(`Sending request to ${API_URL}/crawl for query: ${query}`);
+          try {
+            const response = await axios.post<CrawlResponse>(
+              `${API_URL}/crawl`,
+              requestPayload
+            );
+            return { query, response: response.data };
+          } catch (error) {
+            console.error(`Error searching for "${query}":`, error);
+            return { query, error: error };
+          }
+        });
 
-        // Format the response for the MCP client
-        const results = response.data.results.map((result) => ({
-          title: result.title,
-          snippet: result.excerpt,
-          text: result.text,
-          url: result.url,
-          siteName: result.siteName || "",
-          byline: result.byline || "",
-        }));
+        // Wait for all searches to complete
+        const searchResults = await Promise.all(searchPromises);
+
+        // Aggregate results and remove duplicates by URL
+        const urlMap = new Map<string, any>();
+        const queryList: string[] = [];
+
+        for (const result of searchResults) {
+          if ('response' in result && result.response) {
+            queryList.push(result.query);
+            for (const crawlResult of result.response.results) {
+              if (!urlMap.has(crawlResult.url)) {
+                urlMap.set(crawlResult.url, {
+                  title: crawlResult.title,
+                  snippet: crawlResult.excerpt,
+                  text: crawlResult.text,
+                  url: crawlResult.url,
+                  siteName: crawlResult.siteName || "",
+                  byline: crawlResult.byline || "",
+                  sourceQuery: result.query,
+                });
+              }
+            }
+          }
+        }
+
+        const aggregatedResults = Array.from(urlMap.values());
+
+        console.error(`Found ${aggregatedResults.length} unique results from ${queryList.length} queries`);
 
         return {
           content: [
@@ -136,8 +169,9 @@ async function main() {
               type: "text",
               text: JSON.stringify(
                 {
-                  query: response.data.query,
-                  results: results,
+                  queries: queryList,
+                  totalResults: aggregatedResults.length,
+                  results: aggregatedResults,
                 },
                 null,
                 2
