@@ -1,6 +1,6 @@
 # WebSearch-MCP
 
-[![smithery badge](https://smithery.ai/badge/@mnhlt/WebSearch-MCP)](https://smithery.ai/server/@mnhlt/WebSearch-MCP)
+[![LightNow capabilities](https://lightnow.ai/badge/io.github.mnhlt/websearch-mcp)](https://lightnow.ai/servers/io.github.mnhlt/websearch-mcp)
 
 A Model Context Protocol (MCP) server implementation that provides a web search capability over stdio transport. This server integrates with a WebSearch Crawler API to retrieve search results.
 
